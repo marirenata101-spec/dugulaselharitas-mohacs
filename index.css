@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  background-color: #e6f2ff; /* világoskék */
+  background: linear-gradient(to bottom, #e6f2ff, #ffffff);
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
