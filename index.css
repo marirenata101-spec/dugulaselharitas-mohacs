@@ -11,9 +11,8 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-}
-h1, h2, h3 {
-  color: #020617;
+.hero-text {
+  color: #0f172a;
 }
 
 p {
