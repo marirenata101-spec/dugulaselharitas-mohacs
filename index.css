@@ -12,7 +12,13 @@ body {
   margin: 0;
   padding: 0;
 }
+h1, h2, h3 {
+  color: #020617;
+}
 
+p {
+  color: #1e293b;
+}
 a {
   color: inherit;
   text-decoration: none;
