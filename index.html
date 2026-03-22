@@ -15,6 +15,21 @@
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
+    <div id="welcomePopup" class="popup-overlay">
+      <div class="popup-box">
+        <button class="popup-close" onclick="closePopup()">×</button>
+        <h3>Gyors segítség dugulás esetén</h3>
+        <p>
+          Mohácson és 45 km-es körzetében vállalunk duguláselhárítást,
+          0–24 elérhetőséggel, jellemzően 48 órán belüli kiszállással.
+        </p>
+        <div class="popup-actions">
+          <a class="btn btn-primary" href="tel:+36307903748">Hívás most</a>
+          <a class="btn btn-secondary" href="#kapcsolat" onclick="closePopup()">Kapcsolat</a>
+        </div>
+      </div>
+    </div>
+
     <header class="hero">
       <div class="container">
         <div class="top-badge">
@@ -100,23 +115,7 @@
       <section class="reviews-section">
         <div class="container">
           <h2>Ügyfélvélemények</h2>
-
-          <div class="reviews">
-            <article class="review">
-              <div class="stars">★★★★★</div>
-              <p>„Gyors és profi csapat.”</p>
-            </article>
-
-            <article class="review">
-              <div class="stars">★★★★★</div>
-              <p>„Korrekt, gyors, csak ajánlani tudom!”</p>
-            </article>
-
-            <article class="review">
-              <div class="stars">★★★★★</div>
-              <p>„Gyors, profi munkavégzés, mindenkinek ajánlom!”</p>
-            </article>
-          </div>
+          <div class="reviews" id="reviewsList"></div>
         </div>
       </section>
 
@@ -132,16 +131,8 @@
             action="https://formsubmit.co/folbertzsolt@gmail.com"
             method="POST"
           >
-            <input
-              type="text"
-              name="name"
-              placeholder="Név (nem kötelező)"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="E-mail (nem kötelező)"
-            />
+            <input type="text" name="name" placeholder="Név (nem kötelező)" />
+            <input type="email" name="email" placeholder="E-mail (nem kötelező)" />
             <textarea
               name="message"
               placeholder="Véleményed"
@@ -193,9 +184,7 @@
 
             <div class="contact-item">
               <strong>E-mail</strong>
-              <a href="mailto:folbertzsolt@gmail.com"
-                >folbertzsolt@gmail.com</a
-              >
+              <a href="mailto:folbertzsolt@gmail.com">folbertzsolt@gmail.com</a>
             </div>
 
             <div class="contact-item">
@@ -228,5 +217,38 @@
         </div>
       </section>
     </main>
+
+    <script>
+      const approvedReviews = [
+        "Gyors és profi csapat.",
+        "Korrekt, gyors, csak ajánlani tudom!",
+        "Gyors, profi munkavégzés, mindenkinek ajánlom!"
+      ];
+
+      function renderReviews() {
+        const container = document.getElementById("reviewsList");
+        container.innerHTML = approvedReviews
+          .map(
+            (review) => `
+              <article class="review">
+                <div class="stars">★★★★★</div>
+                <p>„${review}”</p>
+              </article>
+            `
+          )
+          .join("");
+      }
+
+      function closePopup() {
+        document.getElementById("welcomePopup").style.display = "none";
+      }
+
+      window.addEventListener("load", function () {
+        renderReviews();
+        setTimeout(function () {
+          document.getElementById("welcomePopup").style.display = "flex";
+        }, 800);
+      });
+    </script>
   </body>
 </html>
