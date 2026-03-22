@@ -374,3 +374,13 @@ a {
     font-size: 30px;
   }
 }
+.review-name {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #e2e8f0;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
