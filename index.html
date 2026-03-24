@@ -218,55 +218,58 @@
       </section>
     </main>
 
-<script>
-  const approvedReviews = [
-    // GOOGLE
-    { name: "B.P.", text: "Precíz, gyors, korrekt. Nincs akadály!" },
-    { name: "P.G.", text: "Megbízható, profi, gyors, csak ajánlani tudom." },
-    { name: "P.P.", text: "Ajánlom." },
-    { name: "Sz.D.", text: "Profi, korrekt, gyors." },
-    { name: "B.A.", text: "Köszönöm a gyors munkátokat!" },
-    { name: "N.G.", text: "Köszönöm a munkájukat!" },
-    { name: "F.Gy.", text: "Köszönöm." },
-    { name: "K.T.", text: "Ajánlom." },
-    { name: "Sz.Zs.", text: "Köszönöm szépen a gyors, profi munkát! Bátran ajánlom mindenkinek!" },
-    { name: "N.Gy.", text: "Köszönöm munkájukat." },
+    <script>
+      const approvedReviews = [
+        // GOOGLE
+        { name: "B.P.", text: "Precíz, gyors, korrekt. Nincs akadály!" },
+        { name: "P.G.", text: "Megbízható, profi, gyors, csak ajánlani tudom." },
+        { name: "P.P.", text: "Ajánlom." },
+        { name: "Sz.D.", text: "Profi, korrekt, gyors." },
+        { name: "B.A.", text: "Köszönöm a gyors munkátokat!" },
+        { name: "N.G.", text: "Köszönöm a munkájukat!" },
+        { name: "F.Gy.", text: "Köszönöm." },
+        { name: "K.T.", text: "Ajánlom." },
+        { name: "Sz.Zs.", text: "Köszönöm szépen a gyors, profi munkát! Bátran ajánlom mindenkinek!" },
+        { name: "N.Gy.", text: "Köszönöm munkájukat." },
 
-    // FACEBOOK
-    { name: "G.N.", text: "Köszönöm, profi csapat ⭐⭐⭐⭐⭐" },
-    { name: "B.R.", text: "Gyors, profi munkavégzés, mindenkinek ajánlom!" },
-    { name: "P.B.", text: "Korrekt, gyors, csak ajánlani tudom!" },
-    { name: "M.Zs.", text: "Gyors, profi munka! Bátran ajánlom mindenkinek! ⭐⭐⭐⭐⭐" },
-    { name: "B.V.", text: "Minőségi munka, kiemelkedő szaktudás! Csak ajánlani tudom!" },
-    { name: "N.Gy.", text: "Gyors reagálás, profi munka ⭐⭐⭐⭐⭐" },
-    { name: "H.A.", text: "Pontos, precíz, megbízható!!!" }
-  ];
+        // FACEBOOK
+        { name: "G.N.", text: "Köszönöm, profi csapat ⭐⭐⭐⭐⭐" },
+        { name: "B.R.", text: "Gyors, profi munkavégzés, mindenkinek ajánlom!" },
+        { name: "P.B.", text: "Korrekt, gyors, csak ajánlani tudom!" },
+        { name: "M.Zs.", text: "Gyors, profi munka! Bátran ajánlom mindenkinek! ⭐⭐⭐⭐⭐" },
+        { name: "B.V.", text: "Minőségi munka, kiemelkedő szaktudás! Csak ajánlani tudom!" },
+        { name: "N.Gy.", text: "Gyors reagálás, profi munka ⭐⭐⭐⭐⭐" },
+        { name: "H.A.", text: "Pontos, precíz, megbízható!!!" }
+      ];
 
-  function renderReviews() {
-    const container = document.getElementById("reviewsList");
+      function renderReviews() {
+        const container = document.getElementById("reviewsList");
 
-    container.innerHTML = approvedReviews
-      .map(
-        (review) => `
-          <article class="review">
-            <div class="stars">★★★★★</div>
-            <strong class="review-name">${review.name}</strong>
-            <p>„${review.text}”</p>
-          </article>
-        `
-      )
-      .join("");
-  }
+        container.innerHTML = approvedReviews
+          .map(
+            (review) => `
+              <article class="review">
+                <div class="stars">★★★★★</div>
+                <strong class="review-name">${review.name}</strong>
+                <p>„${review.text}”</p>
+              </article>
+            `
+          )
+          .join("");
+      }
 
-  function closePopup() {
-    document.getElementById("welcomePopup").style.display = "none";
-  }
+      function closePopup() {
+        document.getElementById("welcomePopup").style.display = "none";
+      }
 
-  window.addEventListener("load", function () {
-    renderReviews();
+      window.addEventListener("load", function () {
+        renderReviews();
 
-    setTimeout(function () {
-      document.getElementById("welcomePopup").style.display = "flex";
-    }, 800);
-  });
-</script>
+        setTimeout(function () {
+          document.getElementById("welcomePopup").style.display = "flex";
+        }, 800);
+      });
+    </script>
+  </body>
+</html>
+
