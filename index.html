@@ -244,19 +244,9 @@
           .join("");
       }
 
-      function closePopup() {
-        const popup = document.getElementById("welcomePopup");
-        if (popup) popup.style.display = "none";
-      }
-
       window.addEventListener("load", function () {
-        renderReviews();
-
-        setTimeout(function () {
-          const popup = document.getElementById("welcomePopup");
-          if (popup) popup.style.display = "flex";
-        }, 800);
-      });
+  renderReviews();
+});
     </script>
   </body>
 </html>
