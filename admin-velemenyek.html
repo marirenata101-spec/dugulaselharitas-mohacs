@@ -1,1 +1,609 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Vélemények kezelése</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px 15px;
+      background: #f4f7f6;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #176b3a;
+      margin-bottom: 30px;
+    }
+
+    .login-box,
+    .review-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 7px;
+      padding: 11px 18px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .login-button,
+    .approve-button {
+      background: #176b3a;
+      color: white;
+    }
+
+    .reject-button {
+      background: #b3261e;
+      color: white;
+    }
+
+    .hide-button {
+      background: #777;
+      color: white;
+    }
+
+    .logout-button {
+      background: #555;
+      color: white;
+      float: right;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .review {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 15px 0;
+      background: #fafafa;
+    }
+
+    .review.pending {
+      border-left: 5px solid #e0a800;
+    }
+
+    .review.approved {
+      border-left: 5px solid #176b3a;
+    }
+
+    .review-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .rating {
+      color: #e0a800;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .review-message {
+      white-space: pre-wrap;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .review-info {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 12px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 7px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .error {
+      background: #ffe5e5;
+      color: #a00000;
+    }
+
+    .success {
+      background: #e5f6e9;
+      color: #176b3a;
+    }
+
+    .empty {
+      color: #777;
+      font-style: italic;
+    }
+
+    #adminPanel {
+      display: none;
+    }
+
+    .section-title {
+      color: #176b3a;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .top-bar {
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Vélemények kezelése</h1>
+
+  <!-- BEJELENTKEZÉS -->
+  <div class="login-box" id="loginBox">
+
+    <h2>Adminisztrátori belépés</h2>
+
+    <p>
+      Itt tudod kezelni a weboldalra beküldött ügyfélvéleményeket.
+    </p>
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Admin jelszó"
+      autocomplete="current-password"
+    >
+
+    <button class="login-button" onclick="login()">
+      BELÉPÉS
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+
+  </div>
+
+
+  <!-- ADMIN FELÜLET -->
+  <div id="adminPanel">
+
+    <div class="top-bar">
+      <button class="logout-button" onclick="logout()">
+        KILÉPÉS
+      </button>
+    </div>
+
+
+    <!-- FÜGGŐBEN LÉVŐ VÉLEMÉNYEK -->
+    <div class="review-section">
+
+      <h2 class="section-title">
+        Jóváhagyásra váró vélemények
+      </h2>
+
+      <div id="pendingReviews">
+        Betöltés...
+      </div>
+
+    </div>
+
+
+    <!-- JÓVÁHAGYOTT VÉLEMÉNYEK -->
+    <div class="review-section">
+
+      <h2 class="section-title">
+        Már megjelent vélemények
+      </h2>
+
+      <div id="approvedReviews">
+        Betöltés...
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  // A jelszó csak a böngésző memóriájában marad.
+  // Nem mentjük localStorage-ba.
+  let adminPassword = "";
+
+
+  // BEJELENTKEZÉS
+  async function login() {
+
+    const passwordInput = document.getElementById("password");
+    const message = document.getElementById("loginMessage");
+
+    const password = passwordInput.value.trim();
+
+    if (!password) {
+      showMessage(
+        message,
+        "Írd be az adminisztrátori jelszót!",
+        "error"
+      );
+      return;
+    }
+
+    try {
+
+      const response = await fetch("/api/reviews-admin", {
+        method: "GET",
+        headers: {
+          "x-admin-password": password
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+
+        showMessage(
+          message,
+          data.error || "Sikertelen belépés.",
+          "error"
+        );
+
+        return;
+      }
+
+      adminPassword = password;
+
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+
+      displayReviews(data);
+
+    } catch (error) {
+
+      showMessage(
+        message,
+        "Nem sikerült kapcsolódni a szerverhez.",
+        "error"
+      );
+
+    }
+
+  }
+
+
+  // VÉLEMÉNYEK MEGJELENÍTÉSE
+  function displayReviews(reviews) {
+
+    const pendingContainer =
+      document.getElementById("pendingReviews");
+
+    const approvedContainer =
+      document.getElementById("approvedReviews");
+
+    pendingContainer.innerHTML = "";
+    approvedContainer.innerHTML = "";
+
+
+    const pending = reviews.filter(
+      review => review.approved === false
+    );
+
+    const approved = reviews.filter(
+      review => review.approved === true
+    );
+
+
+    // FÜGGŐBEN LÉVŐ
+    if (pending.length === 0) {
+
+      pendingContainer.innerHTML =
+        '<p class="empty">Nincs új, jóváhagyásra váró vélemény.</p>';
+
+    } else {
+
+      pending.forEach(review => {
+
+        pendingContainer.appendChild(
+          createReviewElement(review, false)
+        );
+
+      });
+
+    }
+
+
+    // JÓVÁHAGYOTT
+    if (approved.length === 0) {
+
+      approvedContainer.innerHTML =
+        '<p class="empty">Még nincs jóváhagyott vélemény.</p>';
+
+    } else {
+
+      approved.forEach(review => {
+
+        approvedContainer.appendChild(
+          createReviewElement(review, true)
+        );
+
+      });
+
+    }
+
+  }
+
+
+  // EGY VÉLEMÉNY KÁRTYÁJÁNAK LÉTREHOZÁSA
+  function createReviewElement(review, isApproved) {
+
+    const box = document.createElement("div");
+
+    box.className =
+      "review " + (isApproved ? "approved" : "pending");
+
+
+    const name = document.createElement("div");
+    name.className = "review-name";
+    name.textContent = review.name;
+
+
+    const rating = document.createElement("div");
+    rating.className = "rating";
+
+    const stars =
+      "★".repeat(Number(review.rating || 5)) +
+      "☆".repeat(5 - Number(review.rating || 5));
+
+    rating.textContent = stars;
+
+
+    const message = document.createElement("div");
+    message.className = "review-message";
+    message.textContent = review.message;
+
+
+    const info = document.createElement("div");
+    info.className = "review-info";
+
+    let dateText = "";
+
+    if (review.created_at) {
+
+      const date = new Date(review.created_at);
+
+      dateText = date.toLocaleString("hu-HU");
+
+    }
+
+    info.textContent =
+      "Beküldve: " +
+      dateText +
+      (review.email ? " | E-mail: " + review.email : "");
+
+
+    box.appendChild(name);
+    box.appendChild(rating);
+    box.appendChild(message);
+    box.appendChild(info);
+
+
+    // GOMBOK
+    if (!isApproved) {
+
+      const approveButton =
+        document.createElement("button");
+
+      approveButton.className = "approve-button";
+      approveButton.textContent = "JÓVÁHAGYOM";
+
+      approveButton.onclick = function() {
+        changeReviewStatus(review.id, true);
+      };
+
+
+      const rejectButton =
+        document.createElement("button");
+
+      rejectButton.className = "reject-button";
+      rejectButton.textContent = "ELUTASÍTOM";
+
+      rejectButton.onclick = function() {
+        changeReviewStatus(review.id, false);
+      };
+
+
+      box.appendChild(approveButton);
+      box.appendChild(rejectButton);
+
+    } else {
+
+      const hideButton =
+        document.createElement("button");
+
+      hideButton.className = "hide-button";
+      hideButton.textContent = "ELREJTESEM";
+
+      hideButton.onclick = function() {
+        changeReviewStatus(review.id, false);
+      };
+
+      box.appendChild(hideButton);
+
+    }
+
+
+    return box;
+
+  }
+
+
+  // JÓVÁHAGYÁS / ELUTASÍTÁS / ELREJTÉS
+  async function changeReviewStatus(id, approved) {
+
+    try {
+
+      const response = await fetch("/api/reviews-admin", {
+
+        method: "PATCH",
+
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": adminPassword
+        },
+
+        body: JSON.stringify({
+          id: id,
+          approved: approved
+        })
+
+      });
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+
+        alert(
+          data.error ||
+          "A módosítás nem sikerült."
+        );
+
+        return;
+
+      }
+
+
+      // Frissítjük a listát
+      await loadReviews();
+
+    } catch (error) {
+
+      alert(
+        "Hiba történt a módosítás közben."
+      );
+
+    }
+
+  }
+
+
+  // VÉLEMÉNYEK ÚJRABETÖLTÉSE
+  async function loadReviews() {
+
+    try {
+
+      const response = await fetch(
+        "/api/reviews-admin",
+        {
+          headers: {
+            "x-admin-password": adminPassword
+          }
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+
+        alert(
+          data.error ||
+          "A vélemények betöltése nem sikerült."
+        );
+
+        return;
+
+      }
+
+
+      displayReviews(data);
+
+    } catch (error) {
+
+      alert(
+        "Nem sikerült betölteni a véleményeket."
+      );
+
+    }
+
+  }
+
+
+  // KILÉPÉS
+  function logout() {
+
+    adminPassword = "";
+
+    document.getElementById("adminPanel").style.display =
+      "none";
+
+    document.getElementById("loginBox").style.display =
+      "block";
+
+    document.getElementById("password").value =
+      "";
+
+  }
+
+
+  // ÜZENET
+  function showMessage(element, text, type) {
+
+    element.textContent = text;
+
+    element.className =
+      "message " + type;
+
+    element.style.display = "block";
+
+  }
+
+
+  // ENTER BILLENTYŰVEL IS BE LEHET LÉPNI
+  document
+    .getElementById("password")
+    .addEventListener("keydown", function(event) {
+
+      if (event.key === "Enter") {
+        login();
+      }
+
+    });
+
+</script>
+
+</body>
+</html>
