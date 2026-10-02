@@ -1,34 +1,43 @@
-export default async function handler(req, res) {
+export async function GET(request) {
   try {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({
-        error: "GOOGLE_PLACES_API_KEY nincs beállítva a Vercelben."
-      });
+      return Response.json(
+        {
+          error: "GOOGLE_PLACES_API_KEY nincs beállítva a Vercelben."
+        },
+        { status: 500 }
+      );
     }
 
     const placeId = "ChIJbzbjr0vRQkcRqsYWk2lP7tU";
 
     const url =
       `https://places.googleapis.com/v1/places/${placeId}` +
-      `?languageCode=hu&fields=displayName,rating,userRatingCount,reviews,googleMapsLinks` +
+      `?languageCode=hu&fields=displayName,rating,userRatingCount,reviews` +
       `&key=${encodeURIComponent(apiKey)}`;
 
     const response = await fetch(url);
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.error?.message || "Google Places API hiba"
-      });
+      return Response.json(
+        {
+          error: data.error?.message || "Google Places API hiba"
+        },
+        { status: response.status }
+      );
     }
 
-    return res.status(200).json(data);
+    return Response.json(data);
 
   } catch (error) {
-    return res.status(500).json({
-      error: error.message || "Ismeretlen szerverhiba"
-    });
+    return Response.json(
+      {
+        error: error.message || "Ismeretlen szerverhiba"
+      },
+      { status: 500 }
+    );
   }
 }
