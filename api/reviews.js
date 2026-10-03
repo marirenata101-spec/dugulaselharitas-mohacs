@@ -22,7 +22,7 @@ export async function GET(request) {
 
     const url =
       `${supabaseUrl}/rest/v1/reviews` +
-      `?approved=eq.true&order=created_at.desc`;
+  `?select=id,name,message,rating,created_at&approved=eq.true&order=created_at.desc`;
 
     const response = await fetch(url, {
       headers: {
