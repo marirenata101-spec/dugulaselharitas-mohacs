@@ -676,5 +676,60 @@
 
     </script>
 
+<script>
+  const reviewForm = document.getElementById("reviewForm");
+  const reviewFormStatus = document.getElementById("reviewFormStatus");
+
+  if (reviewForm) {
+    reviewForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const button = reviewForm.querySelector('button[type="submit"]');
+      const formData = new FormData(reviewForm);
+
+      const payload = {
+        name: String(formData.get("name") || "").trim(),
+        email: String(formData.get("email") || "").trim(),
+        message: String(formData.get("message") || "").trim(),
+        rating: Number(formData.get("rating") || 5)
+      };
+
+      button.disabled = true;
+      reviewFormStatus.textContent = "Vélemény küldése...";
+
+      try {
+        const response = await fetch("/api/reviews", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "A vélemény elküldése nem sikerült."
+          );
+        }
+
+        reviewForm.reset();
+
+        reviewFormStatus.textContent =
+          "Köszönjük! A véleményed sikeresen elküldve. Jóváhagyás után jelenik meg a weboldalon.";
+
+      } catch (error) {
+        reviewFormStatus.textContent =
+          error.message || "A vélemény elküldése nem sikerült.";
+
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+    
   </body>
 </html>
