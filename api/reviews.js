@@ -93,6 +93,7 @@ export async function POST(request) {
       );
     }
 
+    // Vélemény mentése a Supabase adatbázisba
     const response = await fetch(
       `${supabaseUrl}/rest/v1/reviews`,
       {
@@ -122,7 +123,7 @@ export async function POST(request) {
       );
     }
 
-    // E-mail értesítés az új véleményről
+    // E-mail értesítés küldése
     let notificationSent = false;
 
     if (resendApiKey && notificationEmail) {
@@ -142,8 +143,11 @@ export async function POST(request) {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              from: "Duguláselhárítás vélemények <onboarding@resend.dev>",
+              from:
+                "Duguláselhárítás vélemények <onboarding@resend.dev>",
+
               to: [notificationEmail],
+
               subject:
                 "Új vélemény érkezett – jóváhagyás szükséges",
 
