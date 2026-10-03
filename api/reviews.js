@@ -45,6 +45,8 @@ export async function POST(request) {
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const notificationEmail = process.env.REVIEWS_NOTIFICATION_EMAIL;
 
     if (!supabaseUrl || !serviceKey) {
       return Response.json(
