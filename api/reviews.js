@@ -1,3 +1,13 @@
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
 export async function GET(request) {
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -112,10 +122,93 @@ export async function POST(request) {
       );
     }
 
+    // E-mail értesítés az új véleményről
+    let notificationSent = false;
+
+    if (resendApiKey && notificationEmail) {
+      try {
+        const stars =
+          "★".repeat(rating) + "☆".repeat(5 - rating);
+
+        const adminUrl =
+          "https://dugulaselharitas-mohacs.hu/admin-velemenyek.html";
+
+        const emailResponse = await fetch(
+          "https://api.resend.com/emails",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${resendApiKey}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              from: "Duguláselhárítás vélemények <onboarding@resend.dev>",
+              to: [notificationEmail],
+              subject:
+                "Új vélemény érkezett – jóváhagyás szükséges",
+
+              html: `
+                <h2>Új vélemény érkezett</h2>
+
+                <p>
+                  <strong>Név:</strong>
+                  ${escapeHtml(name)}
+                </p>
+
+                <p>
+                  <strong>Értékelés:</strong>
+                  ${stars}
+                </p>
+
+                <p>
+                  <strong>Vélemény:</strong><br>
+                  ${escapeHtml(message).replaceAll("\n", "<br>")}
+                </p>
+
+                <p>
+                  <a href="${adminUrl}">
+                    Vélemény jóváhagyása vagy elutasítása
+                  </a>
+                </p>
+              `,
+
+              text:
+                `Új vélemény érkezett\n\n` +
+                `Név: ${name}\n` +
+                `Értékelés: ${stars}\n` +
+                `Vélemény: ${message}\n\n` +
+                `Jóváhagyás vagy elutasítás:\n${adminUrl}`
+            })
+          }
+        );
+
+        notificationSent = emailResponse.ok;
+
+        if (!emailResponse.ok) {
+          console.error(
+            "Resend hiba:",
+            await emailResponse.text()
+          );
+        }
+
+      } catch (emailError) {
+        console.error(
+          "E-mail értesítési hiba:",
+          emailError
+        );
+      }
+
+    } else {
+      console.error(
+        "Hiányzó Resend értesítési környezeti változó."
+      );
+    }
+
     return Response.json(
       {
         success: true,
-        message: "A vélemény sikeresen elküldve."
+        message: "A vélemény sikeresen elküldve.",
+        notificationSent
       },
       { status: 201 }
     );
