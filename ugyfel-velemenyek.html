@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <title>Ügyfélvélemények | Duguláselhárítás Mohács és Környéke</title>
+
+  <meta
+    name="description"
+    content="Ügyfeleink véleményei a Duguláselhárítás Mohács és Környéke szolgáltatásairól."
+  />
+
+  <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+
+  <header class="hero">
+    <div class="container">
+
+      <div class="top-badge">
+        Duguláselhárítás Mohács és Környéke
+      </div>
+
+      <h1>Ügyfélvélemények</h1>
+
+      <p class="hero-text">
+        Ügyfeleink tapasztalatai duguláselhárítási szolgáltatásainkról.
+      </p>
+
+      <div class="hero-buttons">
+        <a class="btn btn-primary" href="/">
+          Vissza a főoldalra
+        </a>
+
+        <a class="btn btn-secondary" href="/#velemeny">
+          Véleményt írok
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+
+  <main>
+
+    <section class="reviews-section">
+      <div class="container">
+
+        <h2>Vélemények</h2>
+
+        <p class="section-lead">
+          Az oldalon az általunk jóváhagyott ügyfélvélemények jelennek meg.
+        </p>
+
+        <div class="reviews" id="reviewsList">
+          <p class="section-lead">
+            Vélemények betöltése...
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <script>
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+
+    async function loadReviews() {
+      const container = document.getElementById("reviewsList");
+
+      try {
+        const response = await fetch("/api/reviews");
+
+        if (!response.ok) {
+          throw new Error("A vélemények betöltése nem sikerült.");
+        }
+
+        const reviews = await response.json();
+
+        if (!Array.isArray(reviews) || reviews.length === 0) {
+          container.innerHTML =
+            '<p class="section-lead">Még nincs megjeleníthető vélemény.</p>';
+          return;
+        }
+
+        container.innerHTML = reviews
+          .map((review) => {
+            const rating = Math.max(
+              1,
+              Math.min(5, Number(review.rating) || 5)
+            );
+
+            const stars =
+              "★".repeat(rating) +
+              "☆".repeat(5 - rating);
+
+            return `
+              <article class="review">
+
+                <div class="stars">
+                  ${stars}
+                </div>
+
+                <strong class="review-name">
+                  ${escapeHtml(review.name)}
+                </strong>
+
+                <p>
+                  „${escapeHtml(review.message)}”
+                </p>
+
+              </article>
+            `;
+          })
+          .join("");
+
+      } catch (error) {
+        container.innerHTML =
+          '<p class="section-lead">A vélemények jelenleg nem tölthetők be.</p>';
+
+        console.error(error);
+      }
+    }
+
+
+    window.addEventListener("load", loadReviews);
+  </script>
+
+</body>
+</html>
